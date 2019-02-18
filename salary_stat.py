@@ -38,49 +38,49 @@ def calc_mean_salary_for_speciality(speciality_salaries, koef_from = 1.2,
         if item["salary"]["to"] is None:
             mean_salaries.append(float(item["salary"]["from"]) * koef_from) 
             continue
-        mean_salaries.append(mean([
-            float(item["salary"]["to"]), 
-            float(item["salary"]["from"])
-        ]
-        ))              
-    return mean(mean_salaries)
+        mean_salaries.append(
+            mean([
+                float(item["salary"]["to"]), 
+                float(item["salary"]["from"])
+            ])
+        )              
+    return (len(mean_salaries), mean(mean_salaries))
+
+
+def create_salary_stat_object(lang, vacancy_name, search_period):
+    salary_data = {}
+    salary_data["lang"] = lang
+    vacancies_with_salary = hh_parser.get_salary_data(     
+        vacancy_name,
+        period=search_period,
+    )
+    salary_data["vacancies found"] = len(vacancies_with_salary)
+    (count, mean_salary) = calc_mean_salary_for_speciality(vacancies_with_salary)
+    salary_data["vacancies processed"] = count
+    salary_data["mean salary"] = round(mean_salary)
+    return salary_data
 
 
 def main():
     args = parse_arguments()
-    vacancy_temlate = 'программист'
     salaries_data = []
+    search_period = str(args.search_period)
+    vacancy_template = "Программист"
     for index, lang in enumerate(args.lang_list):
-        vacancy_name = ' '.join([vacancy_temlate, lang])
+        vacancy_name = ' '.join([vacancy_template, lang])
         print("Searching for '{0}'...".format(vacancy_name))
-        search_period = str(args.search_period)
-        salaries_data.append({})
-        salaries_data[index]["lang"] = lang
-        salaries_data[index]["items"] = hh_parser.get_salary_data(
-            hh_parser.get_vacancies(
+        salaries_data.append(
+            create_salary_stat_object(
+                lang, 
                 vacancy_name, 
-                period=1
+                search_period
             )
         )
-        print("For '{0}' found {1} vacancies".format(
-            vacancy_name, 
-            len(salaries_data[index]["items"]))
-        )
-    print("Search completed. Results:")
     for salary_data in salaries_data:
-        #print("{0} - {1} vacancies".format(salary_data["lang"], len(salary_data["items"])))
-        salary_data["mean_salary"] = calc_mean_salary_for_speciality(
-            salary_data["items"]
-        )
-
-    for salary_data in salaries_data:
-        print("{0} - {1} vacancies - {2} RUR".format(
-            salary_data["lang"], 
-            len(salary_data["items"]),
-            salary_data["mean_salary"],
-            )
-        )
-       
+        print()
+        for key in salary_data:
+            print('{key}: {value}'.format(key=key, value=salary_data[key]))
+        
 
 if __name__ == '__main__':
     main()
