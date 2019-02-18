@@ -69,6 +69,7 @@ def main():
             vacancy_name,
             period=search_period,
         )
+        print("Proccess mean salary for speciality '{0}'...".format(vacancy_name))
         salaries_data.append(create_salary_stat_object(lang, 
                                                     vacancies_with_salary))
     for salary_data in salaries_data:
