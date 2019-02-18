@@ -59,9 +59,10 @@ def join_vacancies_pages(data_pages):
     return vacancy_list
 
 
-def get_salary_data(data_pages):
-    salary_data = []
+def get_salary_data(vacancy_name, period="30"):
+    data_pages = get_vacancies(vacancy_name, period)
     vacancies = join_vacancies_pages(data_pages)
+    salary_data = []
     for vacancy in vacancies:
         salary_data.append({
             "id": vacancy["id"],
@@ -75,14 +76,9 @@ def main():
     args = parse_arguments()
     vacancy_name = ' '.join(args.vacancy_name)
     search_period = str(args.search_period)
-    print("Searching for '{0}'...".format(vacancy_name))
-    print(search_period)    
-    pages_with_vacancies = get_vacancies(
-        vacancy_name, 
-        period=args.search_period
-    )
-    print("Get {0} pages".format(len(pages_with_vacancies)))
-    salary = get_salary_data (pages_with_vacancies)
+    salary = get_salary_data (vacancy_name, 
+        period=args.search_period)
+    print(salary)
 
 
 if __name__ == '__main__':
