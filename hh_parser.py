@@ -60,7 +60,7 @@ def join_vacancies_pages(data_pages):
 
 
 def get_salary_data(vacancy_name, period="30"):
-    data_pages = get_vacancies(vacancy_name, period)
+    data_pages = get_vacancies(vacancy_name, period=period)
     vacancies = join_vacancies_pages(data_pages)
     salary_data = []
     for vacancy in vacancies:
@@ -77,7 +77,7 @@ def main():
     vacancy_name = ' '.join(args.vacancy_name)
     search_period = str(args.search_period)
     salary = get_salary_data (vacancy_name, 
-        period=args.search_period)
+        period=search_period)
     print(salary)
 
 
