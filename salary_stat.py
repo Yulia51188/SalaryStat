@@ -47,13 +47,9 @@ def calc_mean_salary_for_speciality(speciality_salaries, koef_from = 1.2,
     return (len(mean_salaries), mean(mean_salaries))
 
 
-def create_salary_stat_object(lang, vacancy_name, search_period):
+def create_salary_stat_object(lang, vacancies_with_salary):
     salary_data = {}
     salary_data["lang"] = lang
-    vacancies_with_salary = hh_parser.get_salary_data(     
-        vacancy_name,
-        period=search_period,
-    )
     salary_data["vacancies found"] = len(vacancies_with_salary)
     (count, mean_salary) = calc_mean_salary_for_speciality(vacancies_with_salary)
     salary_data["vacancies processed"] = count
@@ -69,16 +65,15 @@ def main():
     for index, lang in enumerate(args.lang_list):
         vacancy_name = ' '.join([vacancy_template, lang])
         print("Searching for '{0}'...".format(vacancy_name))
-        salaries_data.append(
-            create_salary_stat_object(
-                lang, 
-                vacancy_name, 
-                search_period
-            )
+        vacancies_with_salary = hh_parser.get_salary_data(     
+            vacancy_name,
+            period=search_period,
         )
+        salaries_data.append(create_salary_stat_object(lang, 
+                                                    vacancies_with_salary))
     for salary_data in salaries_data:
         print()
-        for key in salary_data:
+        for key in sorted(salary_data):
             print('{key}: {value}'.format(key=key, value=salary_data[key]))
         
 
