@@ -65,7 +65,9 @@ def get_salary_data(vacancy_name, period="30"):
         salary_data.append({
             "id": vacancy["id"],
             "name": vacancy["name"],
-            "salary": vacancy["salary"],
+            "salary_from": vacancy["salary"]["from"],
+            "salary_to": vacancy["salary"]["to"],
+            "salary_currency": vacancy["salary"]["currency"],
         })
     return salary_data
 
