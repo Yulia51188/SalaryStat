@@ -1,6 +1,7 @@
 import hh_parser
 import argparse
 from statistics import mean
+from terminaltables import AsciiTable
 
 
 def parse_arguments():
@@ -57,7 +58,26 @@ def create_salary_stat_object(lang, vacancies_with_salary):
     return salary_data
 
 
+def pretty_print(title, salaries_data):
+    print()
+    table_data = []
+    table_data.append([
+        'Язык программирования', 
+        'Найдено вакансий', 
+        'Обработано вакансий', 
+        'Средняя зарплата, руб.'
+    ])
 
+    for salary_data in salaries_data:
+        table_data.append([
+            salary_data["lang"],
+            salary_data["vacancies found"],
+            salary_data["vacancies processed"],
+            salary_data["mean salary"],        
+        ])
+    table = AsciiTable(table_data, title)
+    print(table.table) 
+    print()
 
 
 def main():
@@ -84,6 +104,7 @@ def main():
         # )
         #sj_salaries_data.append(create_salary_stat_object(lang, 
         #                                            sj_vacancies_with_salary))
+    pretty_print('HeadHunter', hh_salaries_data)
         
 
 if __name__ == '__main__':
