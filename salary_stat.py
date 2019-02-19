@@ -29,7 +29,7 @@ def calc_mean_salary_for_speciality(speciality_salaries, koef_from = 1.2,
                                     koef_to = 0.8):
     mean_salaries = []
     for item in speciality_salaries:
-        if not item["salary_currency"] == "RUR":
+        if not item["salary_currency"] in ("RUR", "rub"):
             continue
         if item["salary_from"] is None and item["salary_to"] is None:
             continue
@@ -93,18 +93,18 @@ def main():
             vacancy_name,
             period=search_period,
         )
-        print("Proccess mean salary for speciality '{0}'...".format(vacancy_name))
         hh_salaries_data.append(create_salary_stat_object(lang, 
                                                     hh_vacancies_with_salary))
         #TO DO: debug superjob parsing
-        #print("Searching for '{0}' in SuperJob...".format(vacancy_name))
-        # sj_vacancies_with_salary = superjob_parser.get_salary_data(     
-        #     vacancy_name,
-        #     period=search_period,
-        # )
-        #sj_salaries_data.append(create_salary_stat_object(lang, 
-        #                                            sj_vacancies_with_salary))
+        print("Searching for '{0}' in SuperJob...".format(vacancy_name))
+        sj_vacancies_with_salary = superjob_parser.get_salary_data(     
+             vacancy_name,
+             period=search_period,
+         )
+        sj_salaries_data.append(create_salary_stat_object(lang, 
+                                                    sj_vacancies_with_salary))
     pretty_print('HeadHunter', hh_salaries_data)
+    pretty_print('SuperJob', sj_salaries_data)    
         
 
 if __name__ == '__main__':
