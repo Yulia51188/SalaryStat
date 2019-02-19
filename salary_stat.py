@@ -32,7 +32,7 @@ def calc_mean_salary_for_speciality(speciality_salaries, koef_from = 1.2,
             continue
         if item["salary_from"] is None and item["salary_to"] is None:
             continue
-        if item["salaryfrom"] is None:
+        if item["salary_from"] is None:
             mean_salaries.append(float(item["salary_to"]) * koef_to)
             continue
         if item["salary_to"] is None:
@@ -57,16 +57,13 @@ def create_salary_stat_object(lang, vacancies_with_salary):
     return salary_data
 
 
-def pretty_print(salaies_data):
-    pass
-
-
 
 
 
 def main():
     args = parse_arguments()
-    salaries_data = []
+    hh_salaries_data = []
+    sj_salaries_data = []    
     search_period = str(args.search_period)
     vacancy_template = "Программист"
     for index, lang in enumerate(args.lang_list):
@@ -87,11 +84,6 @@ def main():
         # )
         #sj_salaries_data.append(create_salary_stat_object(lang, 
         #                                            sj_vacancies_with_salary))
-    pretty_print(hh_salaries_data)
-    # for salary_data in salaries_data:
-    #     print()
-    #     for key in sorted(salary_data):
-    #         print('{key}: {value}'.format(key=key, value=salary_data[key]))
         
 
 if __name__ == '__main__':

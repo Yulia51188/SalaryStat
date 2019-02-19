@@ -61,6 +61,7 @@ def join_vacancies_pages(data_pages):
 
 def get_salary_data(vacancy_name, period="30"):
     vacancies = get_vacancies(vacancy_name, period=period)
+    salary_data = []
     for vacancy in vacancies:
         salary_data.append({
             "id": vacancy["id"],
