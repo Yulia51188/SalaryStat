@@ -1,6 +1,12 @@
 from dotenv import load_dotenv
 import os
 import argparse
+import requests
+import json
+import time
+
+
+SEC_IN_DAY = 24 * 60 * 60
 
 
 def parse_arguments():
@@ -9,10 +15,9 @@ def parse_arguments():
     )
     parser.add_argument(
         '-n', '--vacancy_name',
-        default='программист python',
+        default='разработчик python',
         type=str,
-        nargs='+',
-        help='necessary vacancy name, default is "программист python"',
+        help='necessary vacancy name, default is "разработчик python"',
     )
     parser.add_argument(
         '-p', '--search_period',
@@ -24,16 +29,32 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def get_page_with_vacancies(url, key, params, page_index=0):
-    header = { 'X-Api-App-Id': key} 
-    params = { 'keyword': 'python'}
-    url = 'https://api.superjob.ru/2.0/vacancies/'
-    response = requests.get(url, header=header, params=params)
-    print(response.text)
+def get_page_with_vacancies( url, key, params, page_index=0):
+    headers = { 'X-Api-App-Id': key } 
+    params_with_page_index = params
+    params_with_page_index ["page"] = page_index
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+    if response.ok:
+        return(response.json())
 
 
-def get_all_pages_with_vacancies(vacancy_name, key, period="30"):
-    pass
+def get_all_pages_with_vacancies(vacancy_name, key, period='30', version='2.0', 
+        method='vacancies', url_template='https://api.superjob.ru/{version}/{method}/'):
+    params = { 
+        'keyword': vacancy_name,
+        'town': '4',
+        'no_agreement': '1',
+        'date_published_from': get_publication_date_from(period), 
+    }
+    url = url_template.format(version=version, method=method)
+    data_pages=[]
+    data_pages.append(get_page_with_vacancies(url, key, params))
+    page_index = 0
+    while data_pages[-1]["more"]:
+        page_index += 1
+        data_pages.append(get_page_with_vacancies(url, key, params, page_index))
+    return join_vacancies_pages(data_pages) 
 
 
 def join_vacancies_pages(data_pages):
@@ -44,8 +65,9 @@ def join_vacancies_pages(data_pages):
     return vacancy_list
 
 
-def get_salary_data(vacancy_name, key, period="30"):
-    vacancies = get_all_pages_with_vacancies(vacancy_name, key, period=period)
+def get_salary_data(vacancy_name, period_int=30):
+    key = load_secret_key()
+    vacancies = get_all_pages_with_vacancies(vacancy_name, key, period=str(period_int))
     salary_data = []
     for vacancy in vacancies:
         salary_data.append({
@@ -58,19 +80,25 @@ def get_salary_data(vacancy_name, key, period="30"):
     return salary_data
 
 
-def main():
+def get_publication_date_from(period):
+    period_in_sec = period * SEC_IN_DAY
+    current_time = time.time()
+    limit_time = int(current_time - period_in_sec) 
+    return limit_time
+
+
+def load_secret_key():
     load_dotenv()
-    superjob_id = os.getenv("ID")
-    superjob_key = os.getenv("SECRET_KEY")  
+    return os.getenv("SECRET_KEY") 
+
+
+def main():
     args = parse_arguments()
-    vacancy_name = ' '.join(args.vacancy_name)
-    search_period = str(args.search_period)    
-    #DEBUGGING
-    get_page_with_vacancies("", superjob_key, {}, 0)
-    exit()
-    #
-    salary = get_salary_data(vacancy_name, superjob_key, period=search_period)
-    print(salary)
+    try:
+        salary = get_salary_data(args.vacancy_name, period=args.search_period)
+        print(salary)
+    except requests.exceptions.HTTPerror as error:
+        print("Can't get data from SuperJob with error:\n {0}". format(error))
 
 
 if __name__ == '__main__':

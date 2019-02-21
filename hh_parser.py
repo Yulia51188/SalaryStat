@@ -27,13 +27,10 @@ def get_page_with_vacancies(url, params, page_index):
     params_with_page = params
     params_with_page["page"] = page_index
     response = requests.get(url, params=params_with_page)
+    response.raise_for_status()
     if response.ok:
         return response.json()
-        print("Get page #{0}".format(page_index))
-    else:
-        return None
-        print("Can't get page #{0}".format(page_index))       
-
+  
 
 def get_all_pages_with_vacancies(vacancy_name, hh_url="https://api.hh.ru/vacancies", area="1", 
                 only_with_salary="true", period="30"):
@@ -59,8 +56,8 @@ def join_vacancies_pages(data_pages):
     return vacancy_list
 
 
-def get_salary_data(vacancy_name, period="30"):
-    vacancies = get_all_pages_with_vacancies(vacancy_name, period=period)
+def get_salary_data(vacancy_name, period_int=30):
+    vacancies = get_all_pages_with_vacancies(vacancy_name, period=str(period_int))
     salary_data = []
     for vacancy in vacancies:
         salary_data.append({
@@ -76,9 +73,12 @@ def get_salary_data(vacancy_name, period="30"):
 def main():
     args = parse_arguments()
     vacancy_name = ' '.join(args.vacancy_name)
-    search_period = str(args.search_period)
-    salary = get_salary_data (vacancy_name, period=search_period)
-    print(salary)
+    try:
+        salary = get_salary_data (vacancy_name, period_int=search_period)
+        print(salary)        
+    except requests.exceptions.HTTPerror as error:
+        print("Can't get data from HeadHunter with error:\n {0}". format(error))
+
 
 
 if __name__ == '__main__':

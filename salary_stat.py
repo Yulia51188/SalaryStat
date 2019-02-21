@@ -1,7 +1,9 @@
 import hh_parser
+import superjob_parser
 import argparse
 from statistics import mean
 from terminaltables import AsciiTable
+from dotenv import load_dotenv
 
 
 def parse_arguments():
@@ -82,29 +84,29 @@ def pretty_print(title, salaries_data):
 
 def main():
     args = parse_arguments()
-    hh_salaries_data = []
-    sj_salaries_data = []    
-    search_period = str(args.search_period)
-    vacancy_template = "Программист"
+    hh_salaries_stat = []
+    sj_salaries_stat = []    
+    vacancy_template = "Разработчик"
     for index, lang in enumerate(args.lang_list):
         vacancy_name = ' '.join([vacancy_template, lang])
         print("Searching for '{0}' in HeadHunter...".format(vacancy_name))
-        hh_vacancies_with_salary = hh_parser.get_salary_data(     
-            vacancy_name,
-            period=search_period,
-        )
-        hh_salaries_data.append(create_salary_stat_object(lang, 
+        try:
+            hh_vacancies_with_salary = hh_parser.get_salary_data(vacancy_name,
+                                                    period=args.search_period)
+            hh_salaries_stat.append(create_salary_stat_object(lang, 
                                                     hh_vacancies_with_salary))
-        #TO DO: debug superjob parsing
+        except requests.exceptions.HTTPerror as error:
+            print("Can't get data from HeadHunter with error:\n {0}".format(error))            
         print("Searching for '{0}' in SuperJob...".format(vacancy_name))
-        sj_vacancies_with_salary = superjob_parser.get_salary_data(     
-             vacancy_name,
-             period=search_period,
-         )
-        sj_salaries_data.append(create_salary_stat_object(lang, 
-                                                    sj_vacancies_with_salary))
-    pretty_print('HeadHunter', hh_salaries_data)
-    pretty_print('SuperJob', sj_salaries_data)    
+        try:
+            sj_vacancies_with_salary = superjob_parser.get_salary_data(vacancy_name,
+                                                    period=args.search_period)
+            sj_salaries_stat.append(create_salary_stat_object(lang, 
+                                                    sj_vacancies_with_salary))            
+        except requests.exceptions.HTTPerror as error:
+            print("Can't get data from SuperJob with error:\n {0}".format(error))
+    pretty_print('HeadHunter', hh_salaries_stat)
+    pretty_print('SuperJob', sj_salaries_stat)    
         
 
 if __name__ == '__main__':
