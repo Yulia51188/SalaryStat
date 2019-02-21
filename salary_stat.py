@@ -92,7 +92,7 @@ def main():
         print("Searching for '{0}' in HeadHunter...".format(vacancy_name))
         try:
             hh_vacancies_with_salary = hh_parser.get_salary_data(vacancy_name,
-                                                    period=args.search_period)
+                                                    period_int=args.search_period)
             hh_salaries_stat.append(create_salary_stat_object(lang, 
                                                     hh_vacancies_with_salary))
         except requests.exceptions.HTTPerror as error:
@@ -100,7 +100,7 @@ def main():
         print("Searching for '{0}' in SuperJob...".format(vacancy_name))
         try:
             sj_vacancies_with_salary = superjob_parser.get_salary_data(vacancy_name,
-                                                    period=args.search_period)
+                                                    period_int=args.search_period)
             sj_salaries_stat.append(create_salary_stat_object(lang, 
                                                     sj_vacancies_with_salary))            
         except requests.exceptions.HTTPerror as error:
