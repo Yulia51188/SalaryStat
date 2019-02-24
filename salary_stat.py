@@ -89,7 +89,7 @@ def main():
     hh_salaries_stat = []
     sj_salaries_stat = []    
     vacancy_template = "Разработчик"
-    for index, lang in enumerate(args.lang_list):
+    for lang in args.lang_list:
         vacancy_name = '{0} {1}'.format(vacancy_template, lang)
         print("Searching for '{0}' in HeadHunter...".format(vacancy_name))
         try:
