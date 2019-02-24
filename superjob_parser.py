@@ -36,7 +36,7 @@ def get_page_with_vacancies( url, key, params, page_index=0):
     response = requests.get(url, headers=headers, params=params)
     response.raise_for_status()
     if response.ok:
-        return(response.json())
+        return response.json()
 
 
 def get_all_pages_with_vacancies(vacancy_name, key, period='30', version='2.0', 
