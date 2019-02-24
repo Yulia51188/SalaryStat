@@ -90,7 +90,7 @@ def main():
     sj_salaries_stat = []    
     vacancy_template = "Разработчик"
     for index, lang in enumerate(args.lang_list):
-        vacancy_name = ' '.join([vacancy_template, lang])
+        vacancy_name = '{0} {1}'.format(vacancy_template, lang)
         print("Searching for '{0}' in HeadHunter...".format(vacancy_name))
         try:
             hh_vacancies_with_salary = hh_parser.get_salary_data(
