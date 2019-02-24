@@ -65,9 +65,8 @@ def join_vacancies_pages(data_pages):
     return vacancy_list
 
 
-def get_salary_data(vacancy_name, period_int=30):
-    key = load_secret_key()
-    vacancies = get_all_pages_with_vacancies(vacancy_name, key, period=str(period_int))
+def get_salary_data(vacancy_name, key, period_int=30):
+    vacancies = get_all_pages_with_vacancies(vacancy_name, key, period=period_int)
     salary_data = []
     for vacancy in vacancies:
         salary_data.append({
@@ -87,15 +86,12 @@ def get_publication_date_from(period):
     return limit_time
 
 
-def load_secret_key():
-    load_dotenv()
-    return os.getenv("SECRET_KEY") 
-
-
 def main():
     args = parse_arguments()
+    load_dotenv()
+    key = os.getenv("SECRET_KEY")     
     try:
-        salary = get_salary_data(args.vacancy_name, period=args.search_period)
+        salary = get_salary_data(args.vacancy_name, key, period=args.search_period)
         print(salary)
     except requests.exceptions.HTTPerror as error:
         print("Can't get data from SuperJob with error:\n {0}". format(error))
