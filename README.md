@@ -1,6 +1,6 @@
 # SalaryStat
 The script `salary_stat.py` compares mean salaries of developers of different programming languages. The list of languages you can input as arguments of command line (see example in section 'How to launch').
-- To get salary data  from [HeadHunter](https://hh.ru/) and [SuperJob](https://www.superjob.ru/) it uses functions `get_salary_data(vacancy_name, period=30)` from units `hh_parser.py` and `superjob_parser.py`. 
+- To get salary data  from [HeadHunter](https://hh.ru/) and [SuperJob](https://www.superjob.ru/) it uses functions `def get_salary_data(vacancy_name, period_int=30)` from unit `hh_parser.py` and `def get_salary_data(vacancy_name, key, period_int=30)` from `superjob_parser.py`. 
 - Then function `create_salary_stat_object(lang, vacancies_with_salary)` make a list of dictionaries with statistics for each programming language (language, vacancies found, vacancies proccessed, mean salary)
 - Finally, function `pretty_print(title, salaries_data)` print table with salary data for developers vacancies for all input languages.
 
@@ -20,7 +20,6 @@ Example of the launch of `salary_stat.py` in Linux (with python 3.5):
 $ python3 salary_stat.py -l python java
 Searching for 'Разработчик python' in HeadHunter...
 Searching for 'Разработчик python' in SuperJob...
-False
 Searching for 'Разработчик java' in HeadHunter...
 Searching for 'Разработчик java' in SuperJob...
 

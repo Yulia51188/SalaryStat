@@ -1,5 +1,6 @@
 import requests
 import argparse
+from itertools import count
 
 
 def parse_arguments():
@@ -32,7 +33,7 @@ def get_page_with_vacancies(url, params, page_index):
         return response.json()
   
 
-def get_all_pages_with_vacancies(vacancy_name, hh_url="https://api.hh.ru/vacancies", area="1", 
+def fetch_all_pages_with_vacancies(vacancy_name, hh_url="https://api.hh.ru/vacancies", area="1", 
                 only_with_salary="true", period="30"):
     params = {
         "text": vacancy_name,
@@ -40,24 +41,15 @@ def get_all_pages_with_vacancies(vacancy_name, hh_url="https://api.hh.ru/vacanci
         "only_with_salary": only_with_salary,
         "period": period,
     }    
-    response = requests.get(hh_url, params=params)
-    response_data= response.json()
-    page_number = response_data["pages"]    
-    response_data_list = [get_page_with_vacancies(hh_url, params, index) 
-                            for index in range(0,page_number)]
-    return join_vacancies_pages(response_data_list)
-
-
-def join_vacancies_pages(data_pages):
-    vacancy_list = []
-    for data_page in data_pages:
-        for item in data_page["items"]:
-            vacancy_list.append(item)
-    return vacancy_list
+    for page_index in count(start=0):
+        data_page = get_page_with_vacancies(hh_url, params, page_index)
+        yield from data_page["items"]
+        if page_index >= data_page["pages"] :
+            break  
 
 
 def get_salary_data(vacancy_name, period_int=30):
-    vacancies = get_all_pages_with_vacancies(vacancy_name, period=str(period_int))
+    vacancies = list(fetch_all_pages_with_vacancies(vacancy_name, period=str(period_int)))
     salary_data = []
     for vacancy in vacancies:
         salary_data.append({

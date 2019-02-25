@@ -4,6 +4,7 @@ import argparse
 import requests
 import json
 import time
+from itertools import count
 
 
 SEC_IN_DAY = 24 * 60 * 60
@@ -39,7 +40,7 @@ def get_page_with_vacancies( url, key, params, page_index=0):
         return response.json()
 
 
-def get_all_pages_with_vacancies(vacancy_name, key, period='30', version='2.0', 
+def fetch_all_pages_with_vacancies(vacancy_name, key, period='30', version='2.0', 
         method='vacancies', url_template='https://api.superjob.ru/{version}/{method}/'):
     params = { 
         'keyword': vacancy_name,
@@ -48,25 +49,20 @@ def get_all_pages_with_vacancies(vacancy_name, key, period='30', version='2.0',
         'date_published_from': get_publication_date_from(period), 
     }
     url = url_template.format(version=version, method=method)
-    data_pages=[]
-    data_pages.append(get_page_with_vacancies(url, key, params))
-    page_index = 0
-    while data_pages[-1]["more"]:
-        page_index += 1
-        data_pages.append(get_page_with_vacancies(url, key, params, page_index))
-    return join_vacancies_pages(data_pages) 
-
-
-def join_vacancies_pages(data_pages):
-    vacancy_list = []
-    for data_page in data_pages:
-        for item in data_page["objects"]:
-            vacancy_list.append(item)
-    return vacancy_list
+    vacancies = []
+    for page_index in count(start=0):
+        data_page = get_page_with_vacancies(url, key, params)
+        yield from data_page["objects"]
+        if not data_page["more"]:
+            break
 
 
 def get_salary_data(vacancy_name, key, period_int=30):
-    vacancies = get_all_pages_with_vacancies(vacancy_name, key, period=period_int)
+    vacancies = list(fetch_all_pages_with_vacancies(
+        vacancy_name, 
+        key, 
+        period=period_int
+    ))
     salary_data = []
     for vacancy in vacancies:
         salary_data.append({
@@ -88,10 +84,11 @@ def get_publication_date_from(period):
 
 def main():
     args = parse_arguments()
+    print('Period is {0}'.format(args.search_period))
     load_dotenv()
     key = os.getenv("SECRET_KEY")     
     try:
-        salary = get_salary_data(args.vacancy_name, key, period=args.search_period)
+        salary = get_salary_data(args.vacancy_name, key, period_int=args.search_period)
         print(salary)
     except requests.exceptions.HTTPerror as error:
         print("Can't get data from SuperJob with error:\n {0}". format(error))
