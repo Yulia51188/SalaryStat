@@ -68,7 +68,7 @@ def main():
     try:
         salary = get_salary_data (vacancy_name, period_int=search_period)
         print(salary)        
-    except requests.exceptions.HTTPerror as error:
+    except requests.exceptions.HTTPError as error:
         print("Can't get data from HeadHunter with error:\n {0}". format(error))
 
 
