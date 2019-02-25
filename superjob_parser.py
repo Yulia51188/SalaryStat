@@ -40,8 +40,9 @@ def get_page_with_vacancies( url, key, params, page_index=0):
         return response.json()
 
 
-def fetch_all_pages_with_vacancies(vacancy_name, key, period='30', version='2.0', 
-        method='vacancies', url_template='https://api.superjob.ru/{version}/{method}/'):
+def fetch_all_pages_with_vacancies(vacancy_name, key, period='30', 
+        version='2.0', method='vacancies', 
+        url_template='https://api.superjob.ru/{version}/{method}/'):
     params = { 
         'keyword': vacancy_name,
         'town': '4',
@@ -51,7 +52,8 @@ def fetch_all_pages_with_vacancies(vacancy_name, key, period='30', version='2.0'
     url = url_template.format(version=version, method=method)
     vacancies = []
     for page_index in count(start=0):
-        data_page = get_page_with_vacancies(url, key, params)
+        data_page = get_page_with_vacancies(url, key, params, 
+                                            page_index=page_index)
         yield from data_page["objects"]
         if not data_page["more"]:
             break
